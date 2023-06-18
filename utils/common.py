@@ -1,5 +1,6 @@
 import os
 import re
+import pathlib
 
 import cupy
 import cv2
@@ -11,7 +12,9 @@ from models.disparity_refinement import Refine
 
 cuda = torch.cuda.is_available()
 device = "cuda:0" if cuda else "cpu"
-path_to_math_helper = '/home/s182169/Master_thesis/GAN-Burns-effect/utils/helper_math.h'
+
+path_to_utils = pathlib.Path().resolve()
+path_to_math_helper = f"{path_to_utils}/utils/helper_math.h"
 
 def process_load(numpyImage, objectSettings, objectCommon):
 	objectCommon['dblFocal'] = 1024 / 2.0
@@ -374,7 +377,7 @@ def preprocess_kernel(strKernel, objectVariables):
 	return strKernel
 # end
 
-@cupy.util.memoize(for_each_device=True)
+@cupy._util.memoize(for_each_device=True)
 def launch_kernel(strFunction, strKernel):
 	return cupy.cuda.compile_with_cache(strKernel, tuple([ '-I ' + os.environ['CUDA_HOME'], '-I ' + os.environ['CUDA_HOME'] + '/include' ])).get_function(strFunction)
 # end
